@@ -1,18 +1,30 @@
+from django.db.models import Prefetch
 from rest_framework import generics
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import get_object_or_404
 from apply.models import Apply
-from apply.serializers import ReadApplySerializer, ApplySerializer
+from account.models import Jobseeker
+from apply.serializers import ReadApplySerializer, ApplySerializer, FilterApplySerializer
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated
-from job.pagination import CustomPageNumberPagination
+from django_filters import rest_framework as filters
+from apply.pagination import CustomPageNumberPagination
 
 class ApplyList(ListCreateAPIView):
     queryset = Apply.objects.all()
     serializer_class = ReadApplySerializer
     filterset_fields = '__all__'
+    pagination_class = CustomPageNumberPagination
+
+# class FilterApplier(generics.ListAPIView):
+#     serializer_class = FilterApplySerializer
+#     def get_queryset(self):
+#         pk = self.kwargs['pk']
+#         id  = Apply.objects.filter(ApplierId=pk)
+#
+#         return Jobseeker.Objects.filter(JobseekerId=id)
+#     # pagination_class = CustomPageNumberPagination
 
 
 class AddApplier(generics.GenericAPIView):

@@ -3,6 +3,8 @@ from apply import views
 
 urlpatterns = [
     path('',views.ApplyList.as_view()),
+    # path('filter/<int:pk>/', views.FilterApplier.as_view()),
+
     # path('<int:pk>',views.ApplyList.as_view()),
     path('add',views.AddApplier.as_view()),
     # path('edit/<int:id>',views.UpdateJob),

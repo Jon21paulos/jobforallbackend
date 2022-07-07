@@ -1,8 +1,8 @@
 from telnetlib import STATUS
 
-from account.models import Employer, Jobseeker, User
+from account.models import Employer, Jobseeker, User,ServiceSeeker
 from .serializers import JobseekerSignupSerializer, EmployerSignupSerializer, UserSerializer, \
-    JobseekerProfileSerializer, EmployerProfileSerializer
+    JobseekerProfileSerializer, EmployerProfileSerializer,ServiceSeekerSignupSerializer,ServiceSeekerProfileSerializer
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -46,10 +46,21 @@ class EmployerSignupView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
+            "user": EmployerSignupSerializer(user, context=self.get_serializer_context()).data,
             "message": "account created successfully"
         })
 
+class ServiceSignupView(generics.GenericAPIView):
+    serializer_class = ServiceSeekerSignupSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response({
+            "user": UserSerializer(user, context=self.get_serializer_context()).data,
+            "message": "account created successfully"
+        })
 
 class JobseekerEditProfileView(generics.GenericAPIView):
     serializer_class = JobseekerProfileSerializer
@@ -82,6 +93,35 @@ class JobseekerProfileView(generics.GenericAPIView):
             "user": serializer.data
         })
 
+class ServiceSeekerProfileView(generics.GenericAPIView):
+    serializer_class = ServiceSeekerProfileSerializer
+
+    def get_object(self, pk):
+        return ServiceSeeker.objects.get(user_id=pk)
+
+    def get(self, request, pk, format=None):
+        jobeeker_id = self.get_object(pk)
+        serializer = ServiceSeekerProfileSerializer(jobeeker_id)
+        return Response({
+            "user": serializer.data
+        })
+
+class ServiceSeekerEditProfileView(generics.GenericAPIView):
+    serializer_class = ServiceSeekerProfileSerializer
+
+    def get_object(self, pk):
+        return ServiceSeeker.objects.get(user_id=pk)
+
+    def put(self, request, pk, format=None):
+        employer_id = self.get_object(pk)
+        serializer = ServiceSeekerProfileSerializer(employer_id, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "message": "profile updated successfully"
+            })
+        elif serializer.errors():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class EmployerEditProfileView(generics.GenericAPIView):
     serializer_class = EmployerProfileSerializer
